@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from 'prop-types';
 import { NUMBER, EMAIL, URL } from './patterns';
 import { REQUIRED, MIN_LENGTH, MAX_LENGTH } from "./validators";
 import { processHandler } from "./helpers";
