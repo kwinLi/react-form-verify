@@ -1,0 +1,27 @@
+{
+  "name": "react-form-verify",
+  "version": "0.1.0",
+  "description": "Form validation for React",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwinLi/react-form-verify.git"
+  },
+  "keywords": [
+    "react",
+    "form",
+    "validation"
+  ],
+  "author": "KwinLi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kwinLi/react-form-verify/issues"
+  },
+  "homepage": "https://github.com/kwinLi/react-form-verify#readme",
+  "dependencies": {
+    "react": "^16.4.2"
+  }
+}
