@@ -18,7 +18,9 @@ export class VerifyField extends React.Component {
     validator: PropTypes.func,
     focus: PropTypes.bool,
     blur: PropTypes.bool,
-    debounce: PropTypes.number
+    debounce: PropTypes.number,
+    children: PropTypes.func,
+    sync: PropTypes.func,
   }
 
   static defaultProps = {
@@ -58,6 +60,7 @@ export class VerifyField extends React.Component {
   validate() {
     const {
       value,
+      name,
       required,
       number,
       email,
@@ -92,10 +95,16 @@ export class VerifyField extends React.Component {
 
   validateAfterUpdate() {
     const validateResults = this.validate();
-
-    this.setState({
+    const { name, sync } = this.props;
+    const state = {
       isDirty: true,
       ...validateResults
+    };
+
+    this.setState(state);
+
+    name && sync && sync({
+      [name]: state
     });
   }
 
@@ -119,6 +128,7 @@ export class VerifyField extends React.Component {
       blur,
       debounce,
       children,
+      sync,
       ...tail
     } = this.props;
     
@@ -127,6 +137,6 @@ export class VerifyField extends React.Component {
       tail.onBlur = this.onBlur;
     }
 
-    return this.props.children({tail, ...this.state});
+    return this.props.children({ tail, ...this.state });
   }
 }
