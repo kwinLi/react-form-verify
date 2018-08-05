@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from 'prop-types';
+import debounce from 'lodash.debounce';
 import { NUMBER, EMAIL, URL } from './patterns';
 import { REQUIRED, MIN_LENGTH, MAX_LENGTH } from "./validators";
 import { processHandler } from "./helpers";
 
-export class VerifyField extends Component {
+export class VerifyField extends React.Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
     required: PropTypes.bool,

@@ -1,11 +1,11 @@
 {
   "name": "react-form-verify",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Form validation for React",
-  "main": "dist/react-form-verify.min.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production"
+    "build": "babel src -d lib"
   },
   "repository": {
     "type": "git",
@@ -24,15 +24,17 @@
   },
   "homepage": "https://github.com/kwinLi/react-form-verify#readme",
   "dependencies": {
+    "lodash.debounce": "^4.0.8",
     "prop-types": "^15.6.2",
     "react": "^16.4.2"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
-    "babel-plugin-syntax-object-rest-spread": "^6.13.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "webpack": "^4.16.4",
