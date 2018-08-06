@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash.debounce';
 import { NUMBER, EMAIL, URL } from './patterns';
-import { REQUIRED, MIN_LENGTH, MAX_LENGTH } from "./validators";
-import { processHandler } from "./helpers";
+import { REQUIRED, MIN_LENGTH, MAX_LENGTH } from './validators';
+import { processHandler } from './helpers';
 
 export class VerifyField extends React.Component {
   static propTypes = {
@@ -20,7 +20,7 @@ export class VerifyField extends React.Component {
     blur: PropTypes.bool,
     debounce: PropTypes.number,
     children: PropTypes.func,
-    sync: PropTypes.func,
+    sync: PropTypes.func
   }
 
   static defaultProps = {
@@ -30,9 +30,10 @@ export class VerifyField extends React.Component {
   constructor(props) {
     super(props);
 
-    const { onFocus, onBlur, debounce: debounceTime } = props
+    const { onFocus, onBlur, debounce: debounceTime } = props;
     const validateResults = this.validate();
 
+    this.isParentFormWillUpdate = false;
     this.state = {
       isDirty: false,
       ...validateResults
@@ -60,7 +61,6 @@ export class VerifyField extends React.Component {
   validate() {
     const {
       value,
-      name,
       required,
       number,
       email,
@@ -103,9 +103,20 @@ export class VerifyField extends React.Component {
 
     this.setState(state);
 
-    name && sync && sync({
-      [name]: state
-    });
+    if (name && sync) {
+      this.isParentFormWillUpdate = true;
+      sync({
+        [name]: state
+      });
+    }
+  }
+
+  shouldComponentUpdate() {
+    const { isParentFormWillUpdate } = this;
+
+    this.isParentFormWillUpdate = false;
+
+    return !isParentFormWillUpdate;
   }
 
   componentDidUpdate(prevProps) {
@@ -131,7 +142,7 @@ export class VerifyField extends React.Component {
       sync,
       ...tail
     } = this.props;
-    
+
     if (focus || blur) {
       tail.onFocus = this.onFocus;
       tail.onBlur = this.onBlur;

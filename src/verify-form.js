@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import PropTypes from 'prop-types';
 
 export class VerifyForm extends React.Component {
@@ -10,8 +10,9 @@ export class VerifyForm extends React.Component {
     super(props);
 
     this.state = {
-      isDirty: false
-    }
+      isDirty: false,
+      form: {}
+    };
 
     this.syncSummary = this.syncSummary.bind(this);
   }
@@ -19,7 +20,11 @@ export class VerifyForm extends React.Component {
   syncSummary(validateResults) {
     this.setState((prevState) => {
       const { form } = prevState;
-      const allValidateResults = Object.values(form);
+      const _form = {
+        ...form,
+        ...validateResults
+      };
+      const allValidateResults = Object.values(_form);
       const isInvalid = allValidateResults.some(({ isInvalid }) => isInvalid);
       const isValid = !isInvalid;
       let { isDirty } = prevState;
@@ -32,11 +37,8 @@ export class VerifyForm extends React.Component {
         isDirty,
         isValid,
         isInvalid,
-        form: {
-          ...form,
-          ...validateResults
-        }
-      }
+        form: _form
+      };
     });
   }
 
