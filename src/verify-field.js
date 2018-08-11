@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash.debounce';
-import { NUMBER, EMAIL, URL } from './patterns';
-import { REQUIRED, MIN_LENGTH, MAX_LENGTH } from './validators';
-import { processHandler } from './helpers';
+import { enhanceHandler, validate } from './helpers';
 
 export class VerifyField extends React.Component {
   static propTypes = {
@@ -19,8 +17,8 @@ export class VerifyField extends React.Component {
     focus: PropTypes.bool,
     blur: PropTypes.bool,
     debounce: PropTypes.number,
-    children: PropTypes.func,
-    sync: PropTypes.func
+    children: PropTypes.func.isRequired,
+    delegate: PropTypes.func
   }
 
   static defaultProps = {
@@ -30,18 +28,16 @@ export class VerifyField extends React.Component {
   constructor(props) {
     super(props);
 
-    const { onFocus, onBlur, debounce: debounceTime } = props;
-    const validateResults = this.validate();
+    const { name, delegate, onFocus, onBlur, debounce: debounceTime } = props;
 
-    this.isParentFormWillUpdate = false;
-    this.state = {
+    this.state = name && delegate ? {} : {
       isDirty: false,
-      ...validateResults
+      ...validate(props.value, props)
     };
 
     this.validateAfterUpdate = debounce(this.validateAfterUpdate.bind(this), debounceTime);
-    this.onFocus = processHandler(this.handleFocus.bind(this), onFocus);
-    this.onBlur = processHandler(this.handleBlur.bind(this), onBlur);
+    this.onFocus = enhanceHandler(this.handleFocus.bind(this), onFocus);
+    this.onBlur = enhanceHandler(this.handleBlur.bind(this), onBlur);
   }
 
   handleFocus() {
@@ -58,65 +54,26 @@ export class VerifyField extends React.Component {
     });
   }
 
-  validate() {
-    const {
-      value,
-      required,
-      number,
-      email,
-      url,
-      minLength,
-      maxLength,
-      pattern,
-      validator
-    } = this.props;
-
-    const string = value.toString();
-    const customPattern = pattern && new RegExp(pattern);
-    const validateResults = {
-      isEmail: email && EMAIL.test(string),
-      isNumber: number && NUMBER.test(string),
-      isUrl: url && URL.test(string),
-      isRequired: required && REQUIRED(string, 0),
-      isValidMinLength: minLength >= 0 && MIN_LENGTH(string, minLength),
-      isValidMaxLength: maxLength >= 0 && MAX_LENGTH(string, maxLength),
-      isValidByPattern: customPattern && customPattern.test(string),
-      isValidByValidator: validator && validator(value)
-    };
-    const isInvalid = Object.values(validateResults).some(result => result === false);
-    const isValid = !isInvalid;
-
-    return {
-      ...validateResults,
-      isInvalid,
-      isValid
-    };
-  }
-
   validateAfterUpdate() {
-    const validateResults = this.validate();
-    const { name, sync } = this.props;
-    const state = {
-      isDirty: true,
-      ...validateResults
+    const { value, name, delegate: formCollectValidateResults } = this.props;
+    const validateResults = {
+      ...validate(value, this.props),
+      isDirty: true
     };
 
-    this.setState(state);
-
-    if (name && sync) {
-      this.isParentFormWillUpdate = true;
-      sync({
-        [name]: state
-      });
+    if (name && formCollectValidateResults) {
+      formCollectValidateResults({ [name]: validateResults });
+    } else {
+      this.setState(validateResults);
     }
   }
 
-  shouldComponentUpdate() {
-    const { isParentFormWillUpdate } = this;
-
-    this.isParentFormWillUpdate = false;
-
-    return !isParentFormWillUpdate;
+  componentDidMount() {
+    const { value, name, delegate: formCollectValidateResults } = this.props;
+    name && formCollectValidateResults && formCollectValidateResults({ [name]: {
+      ...validate(value, this.props),
+      isDirty: false
+    }});
   }
 
   componentDidUpdate(prevProps) {
@@ -139,7 +96,7 @@ export class VerifyField extends React.Component {
       blur,
       debounce,
       children,
-      sync,
+      delegate,
       ...tail
     } = this.props;
 

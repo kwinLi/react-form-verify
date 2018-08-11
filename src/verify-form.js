@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 export class VerifyForm extends React.Component {
   static propTypes = {
-    children: PropTypes.func
+    children: PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -11,40 +11,41 @@ export class VerifyForm extends React.Component {
 
     this.state = {
       isDirty: false,
-      form: {}
+      allValidateResults: {}
     };
 
-    this.syncSummary = this.syncSummary.bind(this);
+    this.collectValidateResults = this.collectValidateResults.bind(this);
   }
 
-  syncSummary(validateResults) {
+  collectValidateResults(fieldValidateResults) {
     this.setState((prevState) => {
-      const { form } = prevState;
-      const _form = {
-        ...form,
-        ...validateResults
+      const allValidateResults = {
+        ...prevState.allValidateResults,
+        ...fieldValidateResults
       };
-      const allValidateResults = Object.values(_form);
-      const isInvalid = allValidateResults.some(({ isInvalid }) => isInvalid);
+      const allResults = Object.values(allValidateResults);
+      const isDirty = prevState.isDirty || fieldValidateResults.isDirty || allResults.some(({ isDirty }) => isDirty);
+      const isInvalid = fieldValidateResults.isInvalid || allResults.some(({ isInvalid }) => isInvalid);
       const isValid = !isInvalid;
-      let { isDirty } = prevState;
-
-      if (!isDirty) {
-        isDirty = allValidateResults.some(({ isDirty }) => isDirty);
-      }
 
       return {
         isDirty,
         isValid,
         isInvalid,
-        form: _form
+        allValidateResults
       };
     });
   }
 
   render() {
-    const { state, syncSummary } = this;
+    const { isDirty, isValid, isInvalid, allValidateResults } = this.state;
 
-    return this.props.children({ ...state, sync: syncSummary });
+    return this.props.children({
+      isDirty,
+      isValid,
+      isInvalid,
+      form: allValidateResults,
+      collect: this.collectValidateResults
+    });
   }
 }
